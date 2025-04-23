@@ -1,0 +1,27 @@
+# Virtual environment
+venv/
+
+# Python cache
+_pycache_/
+*.py[cod]
+*$py.class
+
+# VS Code settings
+.vscode/
+
+# macOS system files (if using macOS too)
+.DS_Store
+
+# Windows system files
+Thumbs.db
+
+# Environment variable files
+.env
+
+# Jupyter Notebook checkpoints (just in case)
+.ipynb_checkpoints/
+
+# Logs or temporary files
+*.log
+*.bak
+*.swp
