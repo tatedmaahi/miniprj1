@@ -47,24 +47,21 @@ def analyze_markdown(file_path):
 
 def generate_html_report(report, output_path='report.html'):
     """Generate an HTML report with charts for the Markdown analysis."""
-    # Prepare data for the bar chart
+    print(f"Generating report in: {os.getcwd()}")  # Debug current directory
     stats_data = {
         'Metric': ['Words', 'Headings', 'Links', 'Images'],
         'Count': [report['words'], report['headings'], report['links'], report['images']]
     }
     stats_df = pd.DataFrame(stats_data)
 
-    # Generate bar chart using Plotly
     fig = px.bar(stats_df, x='Metric', y='Count', title='Markdown Content Statistics',
                  labels={'Count': 'Count', 'Metric': 'Metric'},
                  color='Metric', color_discrete_sequence=px.colors.qualitative.Pastel)
     chart_html = pio.to_html(fig, full_html=False)
 
-    # Prepare broken links table
     broken_links_df = pd.DataFrame(report['broken_links'], columns=['Broken Links']) if report['broken_links'] else pd.DataFrame(columns=['Broken Links'])
     broken_links_table = broken_links_df.to_html(index=False, classes='table table-striped')
 
-    # Generate the full HTML report
     html_content = f"""
     <!DOCTYPE html>
     <html lang="en">
@@ -91,9 +88,9 @@ def generate_html_report(report, output_path='report.html'):
     </html>
     """
 
-    # Write the HTML report to a file
     with open(output_path, 'w', encoding='utf-8') as f:
         f.write(html_content)
+    print(f"File written to: {output_path}")  # Debug file write
     return output_path
 
 if __name__ == '__main__':
