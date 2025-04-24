@@ -4,9 +4,16 @@ import requests
 from bs4 import BeautifulSoup
 
 def analyze_markdown(file_path):
-    with open(file_path, 'r', encoding='utf-8') as f:
-        content = f.read()
-
+    """Analyze a Markdown file for content statistics (words, headings, links, images, broken links)."""
+    try:
+        with open(file_path, 'r', encoding='utf-8') as f:
+            content = f.read()
+        return content
+    except FileNotFoundError:
+        raise FileNotFoundError(f"The file '{file_path}' was not found.")
+    except UnicodeDecodeError:
+        raise UnicodeDecodeError(f"Unable to decode '{file_path}' with UTF-8 encoding.")
+        
     word_count = len(content.split())
     heading_count = len(re.findall(r'^#{1,6}\s', content, re.MULTILINE))
     link_count = 0
@@ -39,13 +46,14 @@ def analyze_markdown(file_path):
         'images': image_count,
         'broken_links': broken_links
     }
-
+def print_report(report):
+    """Print the analysis report in a formatted manner."""
     print(f"Analysis Report for {report['file']}:")
     print(f"- Words: {report['words']}")
     print(f"- Headings: {report['headings']}")
     print(f"- Links: {report['links']}")
     print(f"- Images: {report['images']}")
-    if broken_links:
+    if report['broken_links']:
         print(f"- Broken Links: {', '.join(broken_links)}")
     else:
         print("- No broken links found.")
@@ -55,4 +63,6 @@ if __name__ == '__main__':
     if len(sys.argv) != 2:
         print("Usage: python analyzer.py <file.md>")
     else:
-        analyze_markdown(sys.argv[1])
+        report = analyze_markdown(sys.argv[1])
+        print_report(report)
+        
