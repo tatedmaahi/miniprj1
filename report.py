@@ -5,6 +5,7 @@ from bs4 import BeautifulSoup
 import pandas as pd
 import plotly.express as px
 import plotly.io as pio
+import os
 
 def analyze_markdown(file_path):
     """Analyze a Markdown file for content statistics (words, headings, links, images, broken links)."""
