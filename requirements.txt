@@ -1,3 +1,5 @@
 markdown
 requests
 beautifulsoup4
+pandas
+plotly
