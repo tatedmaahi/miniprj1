@@ -8,7 +8,6 @@ def analyze_markdown(file_path):
     try:
         with open(file_path, 'r', encoding='utf-8') as f:
             content = f.read()
-        return content
     except FileNotFoundError:
         raise FileNotFoundError(f"The file '{file_path}' was not found.")
     except UnicodeDecodeError:
@@ -38,7 +37,7 @@ def analyze_markdown(file_path):
             except requests.RequestException:
                 broken_links.append(url)
 
-    report = {
+    return {
         'file': file_path,
         'words': word_count,
         'headings': heading_count,
@@ -54,7 +53,7 @@ def print_report(report):
     print(f"- Links: {report['links']}")
     print(f"- Images: {report['images']}")
     if report['broken_links']:
-        print(f"- Broken Links: {', '.join(broken_links)}")
+        print(f"- Broken Links: {', '.join(report['broken_links'])}")
     else:
         print("- No broken links found.")
 
