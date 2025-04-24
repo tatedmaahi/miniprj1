@@ -4,14 +4,11 @@ import requests
 from bs4 import BeautifulSoup
 import pandas as pd
 import plotly.express as px
-import plotly.io as pio
-import os
 
 def analyze_markdown(file_path):
-    """Analyze a Markdown file for content statistics (words, headings, links, images, broken links)."""
+    """Check a Markdown file for words, headings, links, and images."""
     with open(file_path, 'r', encoding='utf-8') as f:
         content = f.read()
-        
     word_count = len(content.split())
     heading_count = len(re.findall(r'^#{1,6}\s', content, re.MULTILINE))
     link_count = 0
@@ -20,7 +17,6 @@ def analyze_markdown(file_path):
 
     html = markdown.markdown(content)
     soup = BeautifulSoup(html, 'html.parser')
-
     links = soup.find_all('a')
     link_count = len(links)
     images = soup.find_all('img')
@@ -30,10 +26,10 @@ def analyze_markdown(file_path):
         url = link.get('href')
         if url and url.startswith('http'):
             try:
-                response = requests.head(url, timeout=5, allow_redirects=True)
+                response = requests.head(url, timeout=5)
                 if response.status_code >= 400:
                     broken_links.append(url)
-            except requests.RequestException:
+            except:
                 broken_links.append(url)
 
     return {
@@ -45,59 +41,39 @@ def analyze_markdown(file_path):
         'broken_links': broken_links
     }
 
-def generate_html_report(report, output_path='report.html'):
-    """Generate an HTML report with charts for the Markdown analysis."""
-    print(f"Generating report in: {os.getcwd()}")  # Debug current directory
-    stats_data = {
-        'Metric': ['Words', 'Headings', 'Links', 'Images'],
-        'Count': [report['words'], report['headings'], report['links'], report['images']]
+def make_visual_report(report, file_name='visrep.html'):
+    """Make a simple HTML report with a chart."""
+    # Make a chart for words, headings, links, and images
+    data = {
+        'Thing': ['Words', 'Headings', 'Links', 'Images'],
+        'Number': [report['words'], report['headings'], report['links'], report['images']]
     }
-    stats_df = pd.DataFrame(stats_data)
+    df = pd.DataFrame(data)
+    chart = px.bar(df, x='Thing', y='Number', title='File Stats')
+    chart_html = chart.to_html(full_html=False)
 
-    fig = px.bar(stats_df, x='Metric', y='Count', title='Markdown Content Statistics',
-                 labels={'Count': 'Count', 'Metric': 'Metric'},
-                 color='Metric', color_discrete_sequence=px.colors.qualitative.Pastel)
-    chart_html = pio.to_html(fig, full_html=False)
+    # Add broken links as text
+    broken_text = '<p>Broken Links: ' + ', '.join(report['broken_links']) + '</p>' if report['broken_links'] else '<p>No broken links.</p>'
 
-    broken_links_df = pd.DataFrame(report['broken_links'], columns=['Broken Links']) if report['broken_links'] else pd.DataFrame(columns=['Broken Links'])
-    broken_links_table = broken_links_df.to_html(index=False, classes='table table-striped')
-
-    html_content = f"""
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Markdown Analysis Report</title>
-        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-        <style>
-            body {{ margin: 20px; font-family: Arial, sans-serif; }}
-            h1 {{ color: #333; }}
-            .container {{ max-width: 900px; margin: auto; }}
-        </style>
-    </head>
+    # Put it all in an HTML file
+    html = f"""
+    <html>
+    <head><title>Visual Report</title></head>
     <body>
-        <div class="container">
-            <h1>Markdown Analysis Report for {report['file']}</h1>
-            <h3>Content Statistics</h3>
-            {chart_html}
-            <h3>Broken Links</h3>
-            {broken_links_table if report['broken_links'] else '<p>No broken links found.</p>'}
-        </div>
+        <h1>Report for {report['file']}</h1>
+        {chart_html}
+        {broken_text}
     </body>
     </html>
     """
-
-    with open(output_path, 'w', encoding='utf-8') as f:
-        f.write(html_content)
-    print(f"File written to: {output_path}")  # Debug file write
-    return output_path
+    with open(file_name, 'w', encoding='utf-8') as f:  # Added encoding='utf-8'
+        f.write(html)
+    print(f"Report saved as {file_name}")
 
 if __name__ == '__main__':
     import sys
     if len(sys.argv) != 2:
-        print("Usage: python report_generator.py <file.md>")
+        print("Use: python report.py <file.md>")
     else:
-        report = analyze_markdown(sys.argv[1])
-        output_file = generate_html_report(report)
-        print(f"HTML report generated: {output_file}")
+        result = analyze_markdown(sys.argv[1])
+        make_visual_report(result)
