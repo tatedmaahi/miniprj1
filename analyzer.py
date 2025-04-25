@@ -106,8 +106,7 @@ def analyze_markdown(file_path, config):
 
 def generate_html_report(report, config):
     """Generate an HTML report with visualizations."""
-    html_content = f
-    """
+    html_content = f"""
     <!DOCTYPE html>
     <html>
     <head>
