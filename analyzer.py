@@ -7,44 +7,15 @@ import os
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-def load_config():
-    """Load or create the configuration file."""
-    config_file = "config.json"
-    default_config = {
-        "link_validation": {
-            "timeout": 5,
-            "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
-            "validate_links": True,
-            "allow_redirects": True
-        },
-        "analysis": {
-            "include_images": True,
-            "include_headings": True,
-            "include_links": True,
-            "min_word_length": 1
-        },
-        "visual_report": {
-            "default_output_file": "report.html",
-            "chart_width": 8,
-            "chart_height": 6,
-            "link_colors": ["green", "red"],
-            "content_color": "blue",
-            "font_family": "Arial, sans-serif",
-            "margin": "20px"
-        }
-    }
-    
-    if not os.path.exists(config_file):
-        with open(config_file, 'w', encoding='utf-8') as f:
-            json.dump(default_config, f, indent=4)
-        return default_config
-    
+def load_config(config_path="config.json"):
+    """Load the configuration file from the specified path."""
     try:
-        with open(config_file, 'r', encoding='utf-8') as f:
+        with open(config_path, 'r', encoding='utf-8') as f:
             return json.load(f)
+    except FileNotFoundError:
+        raise FileNotFoundError(f"Configuration file '{config_path}' not found.")
     except json.JSONDecodeError:
-        print("Error: Invalid JSON in config.json. Using default settings.")
-        return default_config
+        raise ValueError(f"Invalid JSON in '{config_path}'. Please check the file format.")
 
 def analyze_markdown(file_path, config):
     """Analyze a Markdown file for content statistics (words, headings, links, images, broken links)."""
