@@ -1,10 +1,5 @@
 markdown
 requests
 beautifulsoup4
-<<<<<<< HEAD
 matplotlib 
 seaborn
-=======
-pandas
-plotly
->>>>>>> develop
