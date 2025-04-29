@@ -25,3 +25,10 @@ Thumbs.db
 *.log
 *.bak
 *.swp
+
+report.py
+visrep.html
+Visual Report.png
+visual_report.html
+*.png
+report_*.html
