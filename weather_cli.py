@@ -71,19 +71,6 @@ def display_weather(current_data, forecast_data):
         print("No current weather data available.")
 
     if forecast_data:
-<<<<<<< HEAD
-        print("\nToday's Forecast (April 30, 2025):")
-        today = date(2025, 4, 30)  # Hardcoded for current date
-        forecast_list = forecast_data.get("list", [])
-        for entry in forecast_list[:8]:  # Limit to 24 hours (8 entries, 3-hour intervals)
-            dt = datetime.fromtimestamp(entry["dt"])
-            forecast_date = dt.date()
-            if forecast_date != today:
-                continue  # Skip entries not on April 30, 2025
-            temp = entry["main"]["temp"]
-            condition = entry["weather"][0]["description"]
-            print(f"{dt.strftime('%Y-%m-%d %H:%M:%S')}: {temp}°C, {condition}")
-=======
         today = date.today() # Hardcoded for current date
         print(f"\nToday's Forecast ({today.isoformat()}):")
         forecast_list = forecast_data.get("list", [])
@@ -97,7 +84,6 @@ def display_weather(current_data, forecast_data):
                 condition = entry["weather"][0]["description"]
                 # Print the forecast (no timestamp, just date and time)
                 print(f"Time: {datetime.fromtimestamp(entry['dt']).strftime('%H:%M:%S')}, Temperature: {temp}°C, Condition: {condition}")
->>>>>>> e4e835e5e18557174731aa5f286fca26ca9799f9
     else:
         print("No forecast data available.")
 
@@ -123,16 +109,6 @@ def save_to_history(city, current_data, forecast_data):
 def main():
     init_history_file()
 
-<<<<<<< HEAD
-    # Get city input from user
-    while True:
-        location = input("Enter the city name to fetch weather for: ").strip()
-        if location:
-            break
-        print("City name cannot be empty. Please try again.")
-
-    city = city.capitalize()
-=======
     # Get location input from user with enhanced validation
     while True:
         location = input("Enter the location (e.g., city name): ").strip()
@@ -146,7 +122,6 @@ def main():
         break
 
     city = location.title()  # Capitalize for consistency
->>>>>>> e4e835e5e18557174731aa5f286fca26ca9799f9
     current_data = fetch_current_weather(city)
     forecast_data = fetch_forecast(city)
 

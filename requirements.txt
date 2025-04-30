@@ -1,10 +1,2 @@
 requests
-<<<<<<< HEAD
-json
-datetime
-date
-os
-dotenv
-=======
 python-dotenv
->>>>>>> e4e835e5e18557174731aa5f286fca26ca9799f9
