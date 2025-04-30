@@ -1,4 +1,19 @@
-# Weather Dashboard CLI
+# Markdown File Analyzer
+
+A simple tool to analyze .md files, counting words, headings, links, images, validating links and to Output a summary.
+
+## Features
+- Counts words, headings, links, and images.
+- Checks for broken links.
+- Outputs a summary report.
+
+## Installation
+```bash
+git clone https://github.com/tatedmaahi/miniprj1.git
+cd markdown-analyzer
+pip install -r requirements.txt 
+
+## Weather Dashboard CLI
 
 A command-line Python tool that fetches current weather and 24-hour forecasts for any city using the OpenWeatherMap API. It also maintains a local history of past queries.
 
@@ -13,7 +28,7 @@ A command-line Python tool that fetches current weather and 24-hour forecasts fo
 ## Requirements
 
 - Python 3.7+
-- [OpenWeatherMap API Key](https://openweathermap.org/api)
+- OpenWeatherMap API Key(https://openweathermap.org/api)
 - Internet connection
 
 ## Installation

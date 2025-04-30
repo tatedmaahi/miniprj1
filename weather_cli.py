@@ -53,6 +53,10 @@ def fetch_forecast(city):
         return None
     except requests.exceptions.RequestException:
         return None
+def weather(city):
+    current_data = fetch_current_weather(city)
+    forecast_data = fetch_forecast(city)
+    return current_data, forecast_data
 
 def display_weather(current_data, forecast_data):
     if current_data:

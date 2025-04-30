@@ -1,5 +1,6 @@
-markdown
 requests
-beautifulsoup4
-matplotlib 
-seaborn
+json
+datetime
+date
+os
+dotenv
