@@ -1,21 +1,25 @@
 # Weather Dashboard CLI
 
-A command-line interface (CLI) tool that fetches weather data from the OpenWeatherMap API, displays formatted current conditions and forecasts, and saves historical queries to a local JSON file.
+A command-line Python tool that fetches current weather and 24-hour forecasts for any city using the OpenWeatherMap API. It also maintains a local history of past queries.
 
 ## Features
-- Fetches current weather and 24-hour forecast data for a specified city.
-- Displays formatted weather information (temperature, condition, humidity, wind speed, etc.).
-- Saves historical weather queries to a local JSON file (weather_history.json).
-- Implements error handling for API requests and network issues.
-- Includes a comprehensive test suite with mocked API responses.
+
+- Current weather conditions (temperature, humidity, wind, etc.)
+- 24-hour forecast (next 8 data points, 3-hour interval)
+- JSON-based history logging
+- Easy-to-use CLI interface
+- Environment variable support for API key security
 
 ## Requirements
-- Python 3.6+
-- requests library (pip install requests)
 
-## Setup
-1. Clone the repository:
+- Python 3.7+
+- [OpenWeatherMap API Key](https://openweathermap.org/api)
+- Internet connection
+
+## Installation
+
+1. Clone the repository or download the script.
+2. Create and activate a virtual environment (optional but recommended):
    ```bash
-   git clone https://github.com/tatedmaahi/miniprj1.git
-   cd weather-weather-dashboard-cli
-   
+   python -m venv venv
+   .\venv\Scripts\activate        # On Windows
