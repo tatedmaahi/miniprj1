@@ -71,17 +71,19 @@ def display_weather(current_data, forecast_data):
         print("No current weather data available.")
 
     if forecast_data:
-        print("\nToday's Forecast (April 30, 2025):")
-        today = date(2025, 4, 30)  # Hardcoded for current date
+        today = date.today() # Hardcoded for current date
+        print(f"\nToday's Forecast ({today.isoformat()}):")
         forecast_list = forecast_data.get("list", [])
-        for entry in forecast_list[:8]:  # Limit to 24 hours (8 entries, 3-hour intervals)
-            dt = datetime.fromtimestamp(entry["dt"])
-            forecast_date = dt.date()
-            if forecast_date != today:
-                continue  # Skip entries not on April 30, 2025
-            temp = entry["main"]["temp"]
-            condition = entry["weather"][0]["description"]
-            print(f"{dt.strftime('%Y-%m-%d %H:%M:%S')}: {temp}°C, {condition}")
+        
+        for entry in forecast_list:  # Limit to 24 hours (8 entries, 3-hour intervals)
+            forecast_date = datetime.fromtimestamp(entry["dt"]).date()
+            
+            # Only display the forecast if the date matches today
+            if forecast_date == today:
+                temp = entry["main"]["temp"]
+                condition = entry["weather"][0]["description"]
+                # Print the forecast (no timestamp, just date and time)
+                print(f"Time: {datetime.fromtimestamp(entry['dt']).strftime('%H:%M:%S')}, Temperature: {temp}°C, Condition: {condition}")
     else:
         print("No forecast data available.")
 
@@ -119,7 +121,7 @@ def main():
             continue
         break
 
-    city = location.capitalize()  # Capitalize for consistency
+    city = location.title()  # Capitalize for consistency
     current_data = fetch_current_weather(city)
     forecast_data = fetch_forecast(city)
 
