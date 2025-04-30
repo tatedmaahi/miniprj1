@@ -1,5 +1,2 @@
-markdown
 requests
-beautifulsoup4
-matplotlib 
-seaborn
+python-dotenv
