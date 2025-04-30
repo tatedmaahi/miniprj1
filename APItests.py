@@ -4,14 +4,14 @@ import json
 import os
 from weather_cli import fetch_current_weather, fetch_forecast, init_history_file, save_to_history, HISTORY_FILE
 
-SAMPLE_CURRENT_WEATHER = {
+MOCK_CURRENT_WEATHER = {
     "name": "Chennai",
     "main": {"temp": 15, "humidity": 70},
     "weather": [{"description": "light rain"}],
     "wind": {"speed": 4.5}
 }
 
-SAMPLE_FORECAST = {
+MOCK_FORECAST = {
     "list": [
         {
             "dt": 1746019200,  # timestamp for 2025-04-30 00:00:00
@@ -26,7 +26,7 @@ class TestWeatherCLI(unittest.TestCase):
     @patch('weather_cli.requests.get')
     def test_fetch_current_weather_success(self, mock_get):
         mock_response = Mock()
-        mock_response.json.return_value = SAMPLE_CURRENT_WEATHER
+        mock_response.json.return_value = MOCK_CURRENT_WEATHER
         mock_response.raise_for_status = Mock()
         mock_get.return_value = mock_response
 
@@ -37,7 +37,7 @@ class TestWeatherCLI(unittest.TestCase):
     @patch('weather_cli.requests.get')
     def test_fetch_forecast_success(self, mock_get):
         mock_response = Mock()
-        mock_response.json.return_value = SAMPLE_FORECAST
+        mock_response.json.return_value = MOCK_FORECAST
         mock_response.raise_for_status = Mock()
         mock_get.return_value = mock_response
 
@@ -67,7 +67,7 @@ class TestWeatherCLI(unittest.TestCase):
     def test_save_to_history_appends_data(self):
         init_history_file()
         city = "Chennai"
-        save_to_history(city, SAMPLE_CURRENT_WEATHER, SAMPLE_FORECAST)
+        save_to_history(city, MOCK_CURRENT_WEATHER, MOCK_FORECAST)
         with open(HISTORY_FILE, "r") as f:
             history = json.load(f)
         self.assertTrue(any(entry["city"] == city for entry in history))
