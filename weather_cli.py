@@ -122,6 +122,7 @@ def main():
         break
 
     city = location.title()  # Capitalize for consistency
+
     current_data = fetch_current_weather(city)
     forecast_data = fetch_forecast(city)
 
