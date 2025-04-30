@@ -1,5 +1,6 @@
 [
     {
+<<<<<<< HEAD
         "timestamp": "2025-04-30T12:58:30.592521",
         "city": "Chennai",
         "current": {
@@ -18049,6 +18050,39 @@
                 "sunrise": 1745972306,
                 "sunset": 1746017616
             }
+=======
+        "timestamp": "2025-04-30T17:42:07.370654",
+        "city": "Chennai",
+        "current": {
+            "name": "Chennai",
+            "main": {
+                "temp": 15,
+                "humidity": 70
+            },
+            "weather": [
+                {
+                    "description": "light rain"
+                }
+            ],
+            "wind": {
+                "speed": 4.5
+            }
+        },
+        "forecast": {
+            "list": [
+                {
+                    "dt": 1746019200,
+                    "main": {
+                        "temp": 14
+                    },
+                    "weather": [
+                        {
+                            "description": "cloudy"
+                        }
+                    ]
+                }
+            ]
+>>>>>>> e4e835e5e18557174731aa5f286fca26ca9799f9
         }
     }
 ]
