@@ -1,9 +1,9 @@
 import sqlite3
 import os
 import platform
-import logging  # Added for debugging
-from dotenv import load_dotenv  # Added to load .env file
-from queries import (  # Import SQL queries
+import logging
+from dotenv import load_dotenv
+from queries import (
     SELECT_ALL_TASKS,
     SELECT_PENDING_TASKS,
     INSERT_TASK,
@@ -19,16 +19,49 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 # Load environment variables from .env file
 load_dotenv()
 DB_NAME = os.getenv("DB_NAME")
+if not DB_NAME:
+    raise ValueError("DB_NAME environment variable not set")
 
 class TaskManager:
     def __init__(self):
         self.db_name = DB_NAME
         # Ensure the database exists
         if not os.path.exists(self.db_name):
-            from database import init_db
-            init_db()
+            self.init_db()
+
+    def init_db(self):
+        conn = sqlite3.connect(self.db_name)
+        cursor = conn.cursor()
+        # Create tasks table
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS tasks (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                description TEXT NOT NULL,
+                priority TEXT NOT NULL,
+                due_date TEXT NOT NULL,
+                completed INTEGER DEFAULT 0
+            );
+        """)
+        conn.commit()
+        conn.close()
+        logging.info("Database initialized successfully")
 
     def add_task(self, description, priority, due_date):
+        # Validate inputs
+        if not description.strip():
+            raise ValueError("Task description cannot be empty")
+        priority = priority.capitalize()
+        if priority not in ["Low", "Medium", "High"]:
+            raise ValueError("Priority must be Low, Medium, or High")
+        # Basic date format validation (YYYY-MM-DD)
+        try:
+            year, month, day = due_date.split("-")
+            if not (len(year) == 4 and len(month) == 2 and len(day) == 2):
+                raise ValueError
+            int(year), int(month), int(day)  # Ensure they are numbers
+        except (ValueError, AttributeError):
+            raise ValueError("Due date must be in YYYY-MM-DD format")
+
         conn = sqlite3.connect(self.db_name)
         cursor = conn.cursor()
         cursor.execute(INSERT_TASK, (description, priority, due_date))
@@ -58,6 +91,14 @@ class TaskManager:
                 print(f"ID: {task[0]} | {task[1]} | {task[2]} | Due: {task[3]} | {status}")
 
     def update_task(self, task_id, completed):
+        # Validate task_id
+        try:
+            task_id = int(task_id)
+            if task_id <= 0:
+                raise ValueError
+        except (ValueError, TypeError):
+            raise ValueError("Task ID must be a positive integer")
+
         conn = sqlite3.connect(self.db_name)
         cursor = conn.cursor()
         cursor.execute(UPDATE_TASK_COMPLETED, (1 if completed else 0, task_id))
@@ -67,6 +108,14 @@ class TaskManager:
         print("Task updated!")
 
     def delete_task(self, task_id):
+        # Validate task_id
+        try:
+            task_id = int(task_id)
+            if task_id <= 0:
+                raise ValueError
+        except (ValueError, TypeError):
+            raise ValueError("Task ID must be a positive integer")
+
         conn = sqlite3.connect(self.db_name)
         cursor = conn.cursor()
         cursor.execute(DELETE_TASK, (task_id,))
@@ -95,7 +144,6 @@ def main():
     tm = TaskManager()
     
     while True:
-        
         print("\nTask Manager")
         print("1. Add Task")
         print("2. View Tasks")
@@ -105,28 +153,45 @@ def main():
         print("6. Exit")
         choice = input("Choose (1-6): ")
 
-        if choice == "1":
+        try:
+            choice = int(choice)
+            if choice not in range(1, 7):
+                raise ValueError
+        except (ValueError, TypeError):
+            print("Please enter a number between 1 and 6")
+            continue
+
+        if choice == 1:
             description = input("Task description: ")
             priority = input("Priority (Low/Medium/High): ")
             due_date = input("Due date (YYYY-MM-DD): ")
-            tm.add_task(description, priority, due_date)
+            try:
+                tm.add_task(description, priority, due_date)
+            except ValueError as e:
+                print(f"Error: {e}")
 
-        elif choice == "2":
+        elif choice == 2:
             show_completed = input("Show completed tasks? (y/n): ").lower() == "y"
             tm.view_tasks(show_completed)
 
-        elif choice == "3":
+        elif choice == 3:
             task_id = input("Task ID to mark as completed: ")
-            tm.update_task(int(task_id), True)
+            try:
+                tm.update_task(task_id, True)
+            except ValueError as e:
+                print(f"Error: {e}")
 
-        elif choice == "4":
+        elif choice == 4:
             task_id = input("Task ID to delete: ")
-            tm.delete_task(int(task_id))
+            try:
+                tm.delete_task(task_id)
+            except ValueError as e:
+                print(f"Error: {e}")
 
-        elif choice == "5":
+        elif choice == 5:
             tm.get_statistics()
 
-        elif choice == "6":
+        elif choice == 6:
             print("Goodbye!")
             break
 
