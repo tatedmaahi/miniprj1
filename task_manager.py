@@ -2,7 +2,6 @@ import sqlite3
 import os
 import platform
 import logging
-from datetime import datetime
 from dotenv import load_dotenv
 from queries import (
     SELECT_ALL_TASKS,
@@ -54,16 +53,12 @@ class TaskManager:
         priority = priority.capitalize()
         if priority not in ["Low", "Medium", "High"]:
             raise ValueError("Priority must be Low, Medium, or High")
-        # Validate due date (YYYY-MM-DD)
+        # Basic date format validation (YYYY-MM-DD)
         try:
-            # Parse the date and validate it using datetime
-            year, month, day = map(int, due_date.split("-"))
-            datetime(year, month, day)  # This will raise ValueError if the date is invalid
-            # Ensure the format is correct (e.g., leading zeros)
-            if not (len(str(year)) == 4 and len(str(month).zfill(2)) == 2 and len(str(day).zfill(2)) == 2):
+            year, month, day = due_date.split("-")
+            if not (len(year) == 4 and len(month) == 2 and len(day) == 2):
                 raise ValueError
-            # Reformat due_date to ensure consistent YYYY-MM-DD format with leading zeros
-            due_date = f"{year}-{str(month).zfill(2)}-{str(day).zfill(2)}"
+            int(year), int(month), int(day)  # Ensure they are numbers
         except (ValueError, AttributeError):
             raise ValueError("Due date must be in YYYY-MM-DD format")
 
