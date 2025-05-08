@@ -4,7 +4,6 @@ import statistics
 import logging
 import pandas as pd
 import matplotlib.pyplot as plt
-import uuid
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -85,10 +84,11 @@ class DBOperationBenchmarker:
         results = []
         for op, query, setup_queries, data in operations:
             result = self.benchmark_operation(op, query, setup_queries, data)
+            # Always append the result, whether it has an error or not
             if "error" not in result:
                 result["optimizations"] = self.analyze_operation(op, query)
                 self.performance_data.append(result)
-                results.append(result)
+            results.append(result)
         return results
 
     def generate_performance_report(self, output_file: str = "db_operation_times.png"):
@@ -219,12 +219,15 @@ def main():
     for result in results:
         print(f"\nOperation: {result['operation']}")
         print(f"Query: {result['query'].strip()}")
-        print(f"Average Time: {result['avg_time']:.4f} seconds")
-        print(f"Min Time: {result['min_time']:.4f} seconds")
-        print(f"Max Time: {result['max_time']:.4f} seconds")
-        print("Optimization Suggestions:")
-        for suggestion in result.get('optimizations', []):
-            print(f"- {suggestion}")
+        if "error" in result:
+            print(f"Error: {result['error']}")
+        else:
+            print(f"Average Time: {result['avg_time']:.4f} seconds")
+            print(f"Min Time: {result['min_time']:.4f} seconds")
+            print(f"Max Time: {result['max_time']:.4f} seconds")
+            print("Optimization Suggestions:")
+            for suggestion in result.get('optimizations', []):
+                print(f"- {suggestion}")
 
     benchmarker.generate_performance_report()
     benchmarker.close()
