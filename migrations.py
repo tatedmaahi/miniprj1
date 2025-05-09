@@ -3,6 +3,7 @@ import os
 from datetime import datetime
 from dotenv import load_dotenv
 import logging
+from queries import SELECT_ALL_TASKS  # Import the required query
 
 # Set up logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -11,6 +12,12 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 load_dotenv()
 OLD_DB_NAME = os.getenv("DB_NAME")
 NEW_DB_NAME = os.getenv("NEW_DB_NAME", "tasks_new.db")
+
+# Define the INSERT query for the new schema (override the one from queries.py)
+INSERT_TASK = """
+    INSERT INTO tasks (id, description, priority, due_date, completed, created_at, updated_at, completed_at, deleted_at)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+"""
 
 def create_new_schema(new_db):
     """Create the new database schema with additional fields."""
@@ -21,7 +28,7 @@ def create_new_schema(new_db):
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             description TEXT NOT NULL,
             priority TEXT NOT NULL,
-            dueCloser, due_date TEXT NOT NULL,
+            due_date TEXT NOT NULL,
             completed INTEGER DEFAULT 0,
             created_at TEXT NOT NULL,
             updated_at TEXT,
@@ -40,8 +47,8 @@ def migrate_data(old_db, new_db):
     old_cursor = old_conn.cursor()
     new_cursor = new_conn.cursor()
 
-    # Fetch all tasks from old database
-    old_cursor.execute("SELECT id, description, priority, due_date, completed FROM tasks")
+    # Fetch all tasks from old database using the query from queries.py
+    old_cursor.execute(SELECT_ALL_TASKS)
     tasks = old_cursor.fetchall()
 
     # Get current timestamp
@@ -51,10 +58,8 @@ def migrate_data(old_db, new_db):
     for task in tasks:
         task_id, description, priority, due_date, completed = task
         completed_at = current_time if completed else None
-        new_cursor.execute("""
-            INSERT INTO tasks (id, description, priority, due_date, completed, created_at, updated_at, completed_at, deleted_at)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-        """, (task_id, description, priority, due_date, completed, current_time, current_time, completed_at, None))
+        new_cursor.execute(INSERT_TASK,
+                          (task_id, description, priority, due_date, completed, current_time, current_time, completed_at, None))
 
     new_conn.commit()
     old_conn.close()
