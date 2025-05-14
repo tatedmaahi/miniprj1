@@ -53,7 +53,6 @@ A simple CLI-based Task Manager for SEM4-Software Engineering. Manage tasks usin
 - SQLite (included with Python)
 
 ## Setup
-<<<<<<< HEAD
 1. Clone the repo (if applicable): git clone https://github.com/tatedmaahi/miniprj1.git
 2. Set up a virtual environment: python -m venv venv and .\venv\Scripts\activate (Windows)
 3. Run: python task_manager.py
@@ -73,3 +72,64 @@ Task Manager
 - Read: ![Read](read_screenshot.png)
 - Update: ![Update](update_screenshot.png)
 - Delete: ![Delete](delete_screenshot.png)
+
+# Document Management System
+
+A simple system to upload PDF and .md files, built for a capstone project.
+
+## Setup
+1. Clone the repo: `git clone https://github.com/tatedmaahi/miniprj1.git && cd document-management-system`
+2. Switch to branch: `git checkout feature/document-upload`
+3. Create virtual environment: `python -m venv venv && source venv/bin/activate`
+4. Install dependencies: `pip install -r requirements.txt`
+5. Initialize database: `sqlite3 documents.db < database.sql`
+6. Run the app: `python app.py`
+
+## Testing with Postman
+- Open Postman in VSCode.
+- Create a POST request to `http://127.0.0.1:5000/upload`.
+- In the body, select `form-data`:
+  - Key: `file`, Type: File, Value: Choose a .pdf or .md file.
+  - Key: `category`, Type: Text, Value: Work.
+- Send the request and check for `{"message": "File uploaded successfully"}`.
+
+## Browser Testing
+- Open `http://127.0.0.1:5000/upload`.
+- Choose a file, select a category, and click Upload.
+- Look for a green success message.
+
+
+# File Loader and Search API
+This Python Flask project provides an API to upload and search metadata for image (JPG, JPEG, PNG), DOCX, PDF, and SVG files using SQLite.
+
+Features
+
+Uploads and processes:
+Images (JPG, JPEG, PNG): format, size, mode
+DOCX: text length, word count
+PDF: page count, title
+SVG: width, height, namespace
+
+
+Stores metadata in SQLite database
+Search API for querying files
+Database query script to view all records
+
+Database Schema
+
+Table: documents
+id (INTEGER PRIMARY KEY)
+filename (TEXT)
+filetype (TEXT)
+filesize (INTEGER)
+upload_date (TEXT)
+metadata (TEXT)
+
+
+
+Notes
+
+Files are saved in the Uploads directory
+Maximum file size: 10 MB
+Supported file extensions: .jpg, .jpeg, .png, .docx, .pdf, .svg
+
