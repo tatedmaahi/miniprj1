@@ -1,9 +1,13 @@
-# test_task_manager.py
-
 import unittest
 from unittest.mock import patch, MagicMock
 from task_manager import TaskManager
 
+# Constants to avoid hardcoding
+TASK_ID = 1
+TASK_NAME = "Test"
+TASK_PRIORITY = "High"
+TASK_DUE_DATE = "2025-12-31"
+TASK_COMPLETED = 0
 
 class TestTaskManagerWithMock(unittest.TestCase):
     @patch("task_manager.sqlite3.connect")
@@ -15,7 +19,7 @@ class TestTaskManagerWithMock(unittest.TestCase):
 
         tm = TaskManager()
         tm.db_name = "mock.db"
-        tm.add_task("Test Task", "High", "2025-12-31")
+        tm.add_task(TASK_NAME, TASK_PRIORITY, TASK_DUE_DATE)
 
         mock_cursor.execute.assert_called_once()
         mock_conn.commit.assert_called_once()
@@ -28,7 +32,7 @@ class TestTaskManagerWithMock(unittest.TestCase):
         mock_connect.return_value = mock_conn
         mock_conn.cursor.return_value = mock_cursor
         mock_cursor.fetchall.return_value = [
-            (1, "Test", "High", "2025-12-31", 0)
+            (TASK_ID, TASK_NAME, TASK_PRIORITY, TASK_DUE_DATE, TASK_COMPLETED)
         ]
 
         tm = TaskManager()
@@ -36,7 +40,7 @@ class TestTaskManagerWithMock(unittest.TestCase):
         tasks = tm.get_all_tasks(show_completed=False)
 
         self.assertEqual(len(tasks), 1)
-        self.assertEqual(tasks[0][1], "Test")
+        self.assertEqual(tasks[0][1], TASK_NAME)
 
     @patch("task_manager.sqlite3.connect")
     def test_update_task(self, mock_connect):
@@ -47,7 +51,7 @@ class TestTaskManagerWithMock(unittest.TestCase):
 
         tm = TaskManager()
         tm.db_name = "mock.db"
-        tm.update_task(1, True)
+        tm.update_task(TASK_ID, True)
 
         mock_cursor.execute.assert_called_once()
         mock_conn.commit.assert_called_once()
@@ -62,7 +66,7 @@ class TestTaskManagerWithMock(unittest.TestCase):
 
         tm = TaskManager()
         tm.db_name = "mock.db"
-        tm.delete_task(1)
+        tm.delete_task(TASK_ID)
 
         mock_cursor.execute.assert_called_once()
         mock_conn.commit.assert_called_once()
@@ -73,13 +77,13 @@ class TestTaskManagerWithMock(unittest.TestCase):
         tm.db_name = "mock.db"
 
         with self.assertRaises(ValueError):
-            tm.add_task("", "High", "2025-12-31")
+            tm.add_task("", TASK_PRIORITY, TASK_DUE_DATE)
 
         with self.assertRaises(ValueError):
-            tm.add_task("Task", "Invalid", "2025-12-31")
+            tm.add_task(TASK_NAME, "Invalid", TASK_DUE_DATE)
 
         with self.assertRaises(ValueError):
-            tm.add_task("Task", "Low", "2025/12/31")
+            tm.add_task(TASK_NAME, TASK_PRIORITY, "2025/12/31")
 
     def test_update_delete_invalid_id(self):
         tm = TaskManager()
