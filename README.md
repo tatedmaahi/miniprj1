@@ -73,3 +73,28 @@ Task Manager
 - Read: ![Read](read_screenshot.png)
 - Update: ![Update](update_screenshot.png)
 - Delete: ![Delete](delete_screenshot.png)
+
+# Document Management System
+
+A simple system to upload PDF and .md files, built for a capstone project.
+
+## Setup
+1. Clone the repo: `git clone https://github.com/tatedmaahi/miniprj1.git && cd document-management-system`
+2. Switch to branch: `git checkout feature/document-upload`
+3. Create virtual environment: `python -m venv venv && source venv/bin/activate`
+4. Install dependencies: `pip install -r requirements.txt`
+5. Initialize database: `sqlite3 documents.db < database.sql`
+6. Run the app: `python app.py`
+
+## Testing with Postman
+- Open Postman in VSCode.
+- Create a POST request to `http://127.0.0.1:5000/upload`.
+- In the body, select `form-data`:
+  - Key: `file`, Type: File, Value: Choose a .pdf or .md file.
+  - Key: `category`, Type: Text, Value: Work.
+- Send the request and check for `{"message": "File uploaded successfully"}`.
+
+## Browser Testing
+- Open `http://127.0.0.1:5000/upload`.
+- Choose a file, select a category, and click Upload.
+- Look for a green success message.
