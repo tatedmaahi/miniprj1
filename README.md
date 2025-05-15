@@ -97,7 +97,6 @@ A simple system to upload PDF and .md files, built for a capstone project.
 ## Browser Testing
 - Open `http://127.0.0.1:5000/upload`.
 - Choose a file, select a category, and click Upload.
-<<<<<<< HEAD
 - Look for a green success message.
 
 
@@ -134,7 +133,4 @@ Notes
 Files are saved in the Uploads directory
 Maximum file size: 10 MB
 Supported file extensions: .jpg, .jpeg, .png, .docx, .pdf, .svg
-
-=======
 - Look for a green success message.
->>>>>>> e0f28687da105a5ca555b963c122fc3c2a446243
