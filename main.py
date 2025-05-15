@@ -3,13 +3,8 @@ import os
 import sqlite3
 import logging
 import json
-from PIL import Image
-import docx2txt
-import fitz  # PyMuPDF
-import xml.etree.ElementTree as ET
 from datetime import datetime
-from collections import Counter
-import re
+from file_handlers import Loader  # Import the new Loader class
 
 # Set up logging
 logging.basicConfig(level=logging.DEBUG)
@@ -20,6 +15,7 @@ class DocumentManager:
         self.app = Flask(__name__)
         self.upload_folder = 'Uploads'
         self.db_path = 'document_database.db'
+        self.loader = Loader()  # Initialize the Loader class
         
         logger.debug("Initializing DocumentManager")
         
@@ -99,62 +95,6 @@ class DocumentManager:
             logger.error(f"Error extracting text: {e}")
             return ''
 
-    def text_to_vector(self, text):
-        logger.debug("Converting text to Bag-of-Words vector")
-        try:
-            if not text or not text.strip():
-                logger.warning("Text is empty or contains only whitespace")
-                return []
-            
-            # Simple text preprocessing: lowercase, remove punctuation, split into words
-            words = re.findall(r'\b\w+\b', text.lower())
-            if not words:
-                logger.warning("No valid words found after preprocessing")
-                return []
-            
-            # Create a vocabulary of the top 100 most frequent words
-            word_counts = Counter(words)
-            top_words = [word for word, _ in word_counts.most_common(100)]
-            if not top_words:
-                logger.warning("No top words identified after counting")
-                return []
-            
-            # Create a vector: frequency of each top word in the text
-            vector = [word_counts[word] for word in top_words]
-            logger.debug(f"Generated vector with length {len(vector)}")
-            return vector
-        
-        except Exception as e:
-            logger.error(f"Failed to convert text to vector: {str(e)}")
-            return []
-
-    def image_to_vector(self, img):
-        logger.debug("Converting image to color histogram vector")
-        try:
-            # Ensure image is in RGB mode
-            if img.mode != 'RGB':
-                img = img.convert('RGB')
-            
-            # Get the color histogram (256 bins per channel for R, G, B)
-            histogram = img.histogram()
-            # The histogram is a list of 256 values per channel (R, G, B) = 768 values total
-            if len(histogram) != 768:
-                logger.warning("Unexpected histogram length, expected 768 values")
-                return []
-            
-            # Normalize the histogram to reduce the impact of image size
-            total_pixels = img.width * img.height
-            if total_pixels == 0:
-                logger.warning("Image has zero pixels")
-                return []
-            
-            normalized_histogram = [value / total_pixels for value in histogram]
-            logger.debug(f"Generated image vector with length {len(normalized_histogram)}")
-            return normalized_histogram
-        except Exception as e:
-            logger.error(f"Failed to convert image to vector: {str(e)}")
-            return []
-
     def cosine_similarity(self, vec1, vec2):
         """Compute cosine similarity between two vectors."""
         if not vec1 or not vec2 or len(vec1) != len(vec2):
@@ -165,65 +105,6 @@ class DocumentManager:
         if norm1 == 0 or norm2 == 0:
             return 0.0
         return dot_product / (norm1 * norm2)
-
-    def load_image(self, filepath):
-        try:
-            img = Image.open(filepath)
-            metadata = {
-                'format': img.format,
-                'size': img.size,
-                'mode': img.mode
-            }
-            vector = self.image_to_vector(img)
-            return metadata, vector
-        except Exception as e:
-            logger.error(f"Error loading image: {e}")
-            return {'error': str(e)}, []
-
-    def load_docx(self, filepath):
-        try:
-            text = docx2txt.process(filepath)
-            words = re.findall(r'\b\w+\b', text.lower())
-            metadata = {
-                'text_length': len(text),
-                'word_count': len(words)
-            }
-            vector = self.text_to_vector(text)
-            return metadata, vector
-        except Exception as e:
-            logger.error(f"Error loading DOCX: {e}")
-            return {'error': str(e)}, []
-
-    def load_pdf(self, filepath):
-        try:
-            doc = fitz.open(filepath)
-            metadata = {
-                'page_count': doc.page_count,
-                'title': doc.metadata.get('title', '') if doc.metadata else ''
-            }
-            text = ''
-            for page in doc:
-                text += page.get_text() or ''
-            doc.close()
-            vector = self.text_to_vector(text)
-            return metadata, vector
-        except Exception as e:
-            logger.error(f"Error loading PDF: {e}")
-            return {'error': str(e)}, []
-
-    def load_svg(self, filepath):
-        try:
-            tree = ET.parse(filepath)
-            root = tree.getroot()
-            metadata = {
-                'width': root.get('width', 'unknown'),
-                'height': root.get('height', 'unknown'),
-                'namespace': root.tag.split('}')[0][1:] if '}' in root.tag else 'unknown'
-            }
-            return metadata, []  # No vector for SVG
-        except Exception as e:
-            logger.error(f"Error loading SVG: {e}")
-            return {'error': str(e)}, []
 
     def handle_upload(self):
         logger.debug("Received upload request")
@@ -259,12 +140,12 @@ class DocumentManager:
             
             try:
                 loaders = {
-                    '.jpg': self.load_image,
-                    '.jpeg': self.load_image,
-                    '.png': self.load_image,
-                    '.docx': self.load_docx,
-                    '.pdf': self.load_pdf,
-                    '.svg': self.load_svg
+                    '.jpg': self.loader.load_image,
+                    '.jpeg': self.loader.load_image,
+                    '.png': self.loader.load_image,
+                    '.docx': self.loader.load_docx,
+                    '.pdf': self.loader.load_pdf,
+                    '.svg': self.loader.load_svg
                 }
                 
                 metadata, content_vector = loaders[file_extension](file_path)
@@ -348,7 +229,7 @@ class DocumentManager:
                 
                 try:
                     img = Image.open(query_image)
-                    query_vector = self.image_to_vector(img)
+                    query_vector = self.loader.image_to_vector(img)
                     query_vector_type = 'image'  # Length 768
                 except Exception as e:
                     logger.error(f"Error processing query image: {e}")
@@ -356,7 +237,7 @@ class DocumentManager:
                     return jsonify({'error': f'Failed to process query image: {str(e)}'}), 400
             else:
                 # Text-based query for DOCX/PDF
-                query_vector = self.text_to_vector(query)
+                query_vector = self.loader.text_to_vector(query)
                 query_vector_type = 'text'  # Length 100
             
             if not query_vector:
