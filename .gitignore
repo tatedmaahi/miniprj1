@@ -25,3 +25,12 @@ Thumbs.db
 *.log
 *.bak
 *.swp
+
+report.py
+visrep.html
+Visual Report.png
+visual_report.html
+
+echo venv/ > .gitignore
+echo _pycache_/ >> .gitignore
+echo *.db >> .gitignore
